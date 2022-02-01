@@ -1,26 +1,28 @@
-name: run-tests
+name: CI
 
 on: [push, pull_request]
 
 jobs:
-  test:
+  phpunit:
+    name: Tests (PHPUnit) L${{ matrix.laravel }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         laravel: [6, 8, 9]
 
-    name: Tests (PHPUnit) L${{ matrix.laravel }}
-
     steps:
-      -   name: Checkout code
-          uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      -   name: Start Redis
-          uses: supercharge/redis-github-action@1.1.0
-      -   name: Install dependencies
-          run: composer require "laravel/framework:${{ matrix.laravel }}"
-      -   name: Execute tests
-          run: vendor/bin/phpunit
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+
+      - name: Install dependencies
+        run: composer require "laravel/framework:^${{matrix.laravel}}.0"
+      - name: Run tests
+        run: vendor/bin/phpunit
 
   php-cs-fixer:
     name: Code style (php-cs-fixer)
